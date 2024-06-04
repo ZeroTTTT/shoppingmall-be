@@ -12,4 +12,12 @@ productController.createProduct
 
 router.get('/', productController.getProducts);
 
+router.put('/:id', 
+authController.authenticate, //token값 확인하는게 들어있으니까 활용
+authController.checkAdminPermission,
+productController.updateProduct
+);
+
+
+
 module.exports = router;
