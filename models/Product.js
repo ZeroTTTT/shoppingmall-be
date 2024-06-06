@@ -34,7 +34,7 @@ const productSchema = Schema({
         type:String,
         default:'active'     
     },
-    isDelete: {
+    isDeleted: {
         type:Boolean,
         default:false     
     }
