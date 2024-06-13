@@ -60,7 +60,14 @@ orderController.getOrder = async (req, res) => {
     const totalItemNum = await Order.find({ userId: userId }).count();
 
     const totalPageNum = Math.ceil(totalItemNum / PAGE_SIZE);
-    res.status(200).json({ status: "success", data: orderList, totalPageNum });
+
+
+    let response = {status:'success'}
+    response.totalPageNum = totalPageNum
+    response.orderList = orderList
+
+    // res.status(200).json({ status: "success", data: orderList, totalPageNum });
+    res.status(200).json(response);
   } catch (err) {
     res.status(400).json({ status: "fail", error: err.message });
   }
