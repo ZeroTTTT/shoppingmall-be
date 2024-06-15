@@ -1,6 +1,6 @@
 const Product = require("../models/Product");
 
-const PAGE_SIZE=5;
+const PAGE_SIZE=8;
 const productController = {};
 
 productController.createProduct = async (req,res) =>{
@@ -63,28 +63,63 @@ productController.createProduct = async (req,res) =>{
 // isDeleted false 인것만 가져오기 
 productController.getProducts = async (req, res) => {
     try {
-      const { page, name } = req.query;
+      const { page, name, category } = req.query;
       let response = { status: "success" };
-      const cond = name
-        ? { name: { $regex: name, $options: "i" }, isDeleted: false }
-        : { isDeleted: false };
-      let query = Product.find(cond);
   
-      if (page) {
-        query = query.skip((page - 1) * PAGE_SIZE).limit(5);
-        const totalItemNum = await Product.find(cond).count();
+      // 조건문 작성
+      const cond = {
+        isDeleted: false,
+        ...(name && { name: { $regex: name, $options: "i" } }),
+        // ...(category && { categories: { $in: [category] } }),
+        ...(category && { category: { $in: [category] } }),
+      };
   
-        const totalPageNum = Math.ceil(totalItemNum / PAGE_SIZE);
-        response.totalPageNum = totalPageNum;
-      }
+      const query = Product.find(cond)
+        .skip((page - 1) * PAGE_SIZE)
+        .limit(PAGE_SIZE);
+  
+      const totalItemNum = await Product.countDocuments(cond);
+      const totalPageNum = Math.ceil(totalItemNum / PAGE_SIZE);
+  
       const productList = await query.exec();
-      response.data = productList;
+  
+      response = {
+        ...response,
+        totalPageNum,
+        data: productList,
+      };
   
       res.status(200).json(response);
     } catch (error) {
       return res.status(400).json({ status: "fail", error: error.message });
     }
   };
+
+  //카테고리 추가전
+// productController.getProducts = async (req, res) => {
+//     try {
+//       const { page, name } = req.query;
+//       let response = { status: "success" };
+//       const cond = name
+//         ? { name: { $regex: name, $options: "i" }, isDeleted: false }
+//         : { isDeleted: false };
+//       let query = Product.find(cond);
+  
+//       if (page) {
+//         query = query.skip((page - 1) * PAGE_SIZE).limit(5);
+//         const totalItemNum = await Product.find(cond).count();
+  
+//         const totalPageNum = Math.ceil(totalItemNum / PAGE_SIZE);
+//         response.totalPageNum = totalPageNum;
+//       }
+//       const productList = await query.exec();
+//       response.data = productList;
+  
+//       res.status(200).json(response);
+//     } catch (error) {
+//       return res.status(400).json({ status: "fail", error: error.message });
+//     }
+//   };
 
 
 
